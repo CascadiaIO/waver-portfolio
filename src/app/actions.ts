@@ -70,6 +70,13 @@ export async function saveEntry(
   return data as Entry;
 }
 
+export async function deleteEntry(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("entries").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+}
+
 // ---------------------------------------------------------------------------
 // Cloudinary upload (used by the /api/upload route and admin forms)
 // ---------------------------------------------------------------------------
