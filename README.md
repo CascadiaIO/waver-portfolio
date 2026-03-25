@@ -4,114 +4,219 @@ A media-heavy portfolio site built with **Next.js 15**, **Supabase**, and **Clou
 
 ---
 
-## Tech Stack
+## What You Will Need
 
-| Layer      | Technology                 |
-| ---------- | -------------------------- |
-| Framework  | Next.js 15 (App Router)    |
-| Database   | Supabase (Postgres + Auth) |
-| Media      | Cloudinary                 |
-| Editor     | Novel (Tiptap-based)       |
-| Styling    | Tailwind CSS v4            |
-| Deployment | Vercel (recommended)       |
+Before you start, create free accounts on all four of these services. You will not need a credit card for any of them.
 
----
-
-## Prerequisites
-
-- Node.js 18+
-- A [Supabase](https://supabase.com) account (free tier works)
-- A [Cloudinary](https://cloudinary.com) account (free tier works)
+| Service                              | What it does                    | Free tier                 |
+| ------------------------------------ | ------------------------------- | ------------------------- |
+| [GitHub](https://github.com)         | Hosts your code (public repo)   | ✅ Unlimited public repos |
+| [Vercel](https://vercel.com)         | Hosts and runs the Next.js app  | ✅ Hobby plan             |
+| [Supabase](https://supabase.com)     | Postgres database + login auth  | ✅ 2 free projects        |
+| [Cloudinary](https://cloudinary.com) | Stores and serves images/videos | ✅ 25 GB free             |
 
 ---
 
-## 1 — Clone & Install
+## Overview
+
+The full setup has five stages. Follow them in order.
+
+1. Get the code onto GitHub
+2. Set up Supabase (database + auth)
+3. Set up Cloudinary (media storage)
+4. Deploy to Vercel (connect everything)
+5. Run locally for development
+
+---
+
+## Stage 1 — Get the Code onto GitHub
+
+### 1a. Fork or use this template
+
+- If this repo is a template: click **Use this template → Create a new repository**
+- Otherwise: click **Fork** (top-right on GitHub)
+- Choose a name for your repo, set visibility to **Public**, and click **Create**
+
+### 1b. Clone it to your machine
 
 ```bash
-git clone <your-repo-url>
-cd waver-portfolio
+git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
+cd YOUR-REPO-NAME
 npm install
 ```
 
+> You need [Node.js 18 or higher](https://nodejs.org). Check with `node -v`.
+
+### 1c. Important — never commit secrets
+
+The `.env.local` file (created in stage 5) is already listed in `.gitignore` so it will never be uploaded to GitHub. **Never remove it from `.gitignore`.**
+
 ---
 
-## 2 — Supabase Setup
+## Stage 2 — Supabase Setup
 
 ### 2a. Create a project
 
-1. Go to [supabase.com](https://supabase.com) → **New project**
-2. Give it a name, set a strong database password, choose a region close to you
+1. Go to [supabase.com](https://supabase.com) and sign in
+2. Click **New project**
+3. Fill in a project name, set a strong database password (save it somewhere), and choose the region closest to you
+4. Click **Create new project** and wait ~2 minutes for it to provision
 
-### 2b. Run the setup SQL
+### 2b. Run the database setup script
 
-1. In your Supabase project, go to **SQL Editor** (left sidebar)
+This repo includes a single SQL script that creates your entire database from scratch.
+
+1. In your Supabase project, click **SQL Editor** in the left sidebar
 2. Click **New query**
-3. Open `supabase/setup.sql` from this repo, paste the entire contents, and click **Run**
+3. On your computer, open the file `supabase/setup.sql` from this repo
+4. Select all the text, copy it, and paste it into the Supabase SQL editor
+5. Click **Run** (or press Ctrl+Enter)
 
-This single script creates:
+You should see a table of columns at the bottom confirming success.
 
-- The `entries` table with all required columns
-- Indexes for efficient sorting
-- Row-Level Security (RLS) policies:
-  - **Public/anonymous** users → read-only (powers the public portfolio)
-  - **Authenticated** users → full insert / update / delete (admin only)
+**What the script sets up:**
 
-### 2c. Create your admin user
+- The `entries` table with every required column
+- A sort index for efficient ordering
+- Row-Level Security (RLS) so the public can only read data, and only logged-in admins can create, edit, or delete entries
 
-1. In Supabase go to **Authentication → Users → Add user**
-2. Enter the email and password you will use to log in to `/admin`
-3. That's the only account needed — the site uses Supabase's built-in email/password auth
+### 2c. Create your admin login
 
-### 2d. Get your API keys
+1. In Supabase, click **Authentication** in the left sidebar
+2. Click **Users → Add user → Create new user**
+3. Enter an email address and a strong password — this is what you will use to log in to `/admin`
+4. Click **Create user**
 
-In Supabase go to **Project Settings → API**:
+> This is the only account you need. There is no public sign-up — only you can log in.
 
-| Key               | Environment variable            |
-| ----------------- | ------------------------------- |
-| Project URL       | `NEXT_PUBLIC_SUPABASE_URL`      |
-| anon / public key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+### 2d. Copy your Supabase API keys
+
+1. In Supabase, click **Project Settings** (gear icon, bottom-left)
+2. Click **API** in the settings menu
+3. You need two values — copy them somewhere safe:
+
+| Value to copy                                    | You will use it as              |
+| ------------------------------------------------ | ------------------------------- |
+| **Project URL**                                  | `NEXT_PUBLIC_SUPABASE_URL`      |
+| **anon / public** key (under "Project API keys") | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+
+> The `anon` key is safe to expose publicly — it only works because RLS policies control what it can access.
 
 ---
 
-## 3 — Cloudinary Setup
+## Stage 3 — Cloudinary Setup
 
-1. Go to [cloudinary.com](https://cloudinary.com) → **Dashboard**
-2. Note your **Cloud name**, **API Key**, and **API Secret**
-3. A folder called `waver-portfolio` will be created automatically on first upload
+Cloudinary stores and serves all the images, GIFs, and videos you upload through the admin.
+
+### 3a. Create an account
+
+1. Go to [cloudinary.com](https://cloudinary.com) and sign up
+2. You will land on the **Dashboard**
+
+### 3b. Copy your credentials
+
+On the Dashboard you will see a box called **Product Environment Credentials**. Copy all three values:
+
+| Value to copy  | You will use it as                  |
+| -------------- | ----------------------------------- |
+| **Cloud name** | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` |
+| **API Key**    | `CLOUDINARY_API_KEY`                |
+| **API Secret** | `CLOUDINARY_API_SECRET`             |
+
+> The API Secret is sensitive — treat it like a password. Never put it in code or commit it to GitHub.
+
+### 3c. (Optional) Configure upload settings
+
+The app automatically creates a folder called `waver-portfolio` in your Cloudinary account on the first upload. No manual setup needed.
 
 ---
 
-## 4 — Environment Variables
+## Stage 4 — Deploy to Vercel
 
-Create a `.env.local` file in the project root:
+Vercel reads your code from GitHub and hosts the app. This is also where you safely store all your secret keys.
+
+### 4a. Create a Vercel account
+
+1. Go to [vercel.com](https://vercel.com) and click **Sign Up**
+2. Choose **Continue with GitHub** — this links your accounts so Vercel can see your repos
+
+### 4b. Import your repository
+
+1. On the Vercel dashboard click **Add New… → Project**
+2. Find your repository in the list and click **Import**
+3. Leave all the build settings as-is (Vercel detects Next.js automatically)
+4. **Before clicking Deploy**, scroll down to **Environment Variables**
+
+### 4c. Add your environment variables to Vercel
+
+Add each of the five variables below. Click **Add** after each one.
+
+| Name                                | Value                         |
+| ----------------------------------- | ----------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`          | Your Supabase Project URL     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`     | Your Supabase anon/public key |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name    |
+| `CLOUDINARY_API_KEY`                | Your Cloudinary API key       |
+| `CLOUDINARY_API_SECRET`             | Your Cloudinary API secret    |
+
+> Make sure all five are entered before deploying. You can add or edit them later under **Project Settings → Environment Variables**, but you will need to redeploy after any change.
+
+### 4d. Deploy
+
+Click **Deploy**. Vercel will build and publish your site. This takes about 1–2 minutes.
+
+When it finishes, Vercel gives you a URL like `https://your-project-name.vercel.app`. Copy it.
+
+### 4e. Tell Supabase your live URL
+
+Supabase needs to know your production URL so that login redirects work correctly.
+
+1. Go back to your Supabase project
+2. Click **Authentication** → **URL Configuration**
+3. Set **Site URL** to your Vercel URL: `https://your-project-name.vercel.app`
+4. Click **Save**
+
+Your site is now live.
+
+---
+
+## Stage 5 — Run Locally (for Development)
+
+To work on the code on your own machine, you need a local copy of all the environment variables.
+
+### 5a. Create `.env.local`
+
+In the root of your project, create a file called `.env.local` and paste in the following, filling in your real values:
 
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 
 # Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name-here
+CLOUDINARY_API_KEY=your-api-key-here
+CLOUDINARY_API_SECRET=your-api-secret-here
 ```
 
-> **Never commit `.env.local`** — it is already in `.gitignore`.
+> This file is already in `.gitignore`. It will never be uploaded to GitHub. Keep it private.
 
----
-
-## 5 — Run Locally
+### 5b. Start the dev server
 
 ```bash
 npm run dev
 ```
 
-- Public portfolio → [http://localhost:3000](http://localhost:3000)
-- Admin CMS → [http://localhost:3000/admin](http://localhost:3000/admin)
+| URL                                                        | What you see        |
+| ---------------------------------------------------------- | ------------------- |
+| [http://localhost:3000](http://localhost:3000)             | Public portfolio    |
+| [http://localhost:3000/admin](http://localhost:3000/admin) | Admin login and CMS |
 
 ---
 
-## 6 — Admin CMS Guide
+## Using the Admin CMS
+
+Log in at `/admin` with the email and password you created in Supabase.
 
 | Path                         | What it does                       |
 | ---------------------------- | ---------------------------------- |
@@ -121,16 +226,16 @@ npm run dev
 
 ### Entry fields
 
-| Field                   | Notes                                                                         |
-| ----------------------- | ----------------------------------------------------------------------------- |
-| **Title**               | Displayed on the card and detail page                                         |
-| **Slug**                | URL-safe identifier, auto-generated from title                                |
-| **Description**         | Used for SEO meta tags and Open Graph social cards                            |
-| **Category**            | Wave / Game / Music / Other — shown as a coloured pill on hover               |
-| **Embedded Video Link** | YouTube, Vimeo, or Google Drive share URL — embedded on the detail page       |
-| **Thumbnail**           | Upload an image, GIF, or video — determines grid card visual and aspect ratio |
-| **Content**             | Rich-text / block editor (Novel/Tiptap) for the detail page body              |
-| **Gallery Images**      | Shown in a justified grid at the bottom of the detail page                    |
+| Field                   | Notes                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| **Title**               | Displayed on the grid card and the detail page                                  |
+| **Slug**                | The URL path (e.g. `my-project` → `/my-project`), auto-generated from the title |
+| **Description**         | Used for SEO and social media preview cards                                     |
+| **Category**            | Wave / Game / Music / Other — shows as a colour-coded pill on hover             |
+| **Embedded Video Link** | YouTube, Vimeo, or Google Drive share URL — embedded on the detail page         |
+| **Thumbnail**           | Upload an image, GIF, or video — this is what shows in the grid                 |
+| **Content**             | Rich-text body for the detail page (supports headings, images, video, etc.)     |
+| **Gallery Images**      | Additional images shown in a justified grid at the bottom of the detail page    |
 
 ### Reordering entries
 
@@ -140,7 +245,23 @@ npm run dev
 
 ---
 
-## 7 — Database Schema Reference
+## Publishing Updates
+
+After making any code changes locally:
+
+```bash
+git add .
+git commit -m "describe your change"
+git push
+```
+
+Vercel automatically detects the push and redeploys within about a minute. No manual steps needed.
+
+If you add a new environment variable, go to **Vercel → Project Settings → Environment Variables**, add it there, then trigger a redeploy from the Vercel dashboard.
+
+---
+
+## Database Schema Reference
 
 The full schema lives in `supabase/setup.sql`. Quick reference:
 
@@ -164,26 +285,15 @@ CREATE TABLE entries (
 );
 ```
 
-### RLS Policies
+### Who can do what (RLS policies)
 
-| Role                     | SELECT | INSERT | UPDATE | DELETE |
-| ------------------------ | ------ | ------ | ------ | ------ |
-| `anon` (public visitors) | ✅     | ❌     | ❌     | ❌     |
-| `authenticated` (admin)  | ✅     | ✅     | ✅     | ✅     |
-
----
-
-## 8 — Deploy to Vercel
-
-1. Push this repo to GitHub
-2. Go to [vercel.com](https://vercel.com) → **New Project** → import your repo
-3. Add all five environment variables from step 4 in the Vercel project settings
-4. Deploy
-
-> **Important:** In Supabase go to **Authentication → URL Configuration** and set the **Site URL** to your Vercel deployment URL (e.g. `https://your-site.vercel.app`). This ensures login redirects work correctly in production.
+| Role                           | Read | Create | Edit | Delete |
+| ------------------------------ | ---- | ------ | ---- | ------ |
+| Public visitor (not logged in) | ✅   | ❌     | ❌   | ❌     |
+| Admin (logged in via `/admin`) | ✅   | ✅     | ✅   | ✅     |
 
 ---
 
-## 9 — Upgrading an Existing Database
+## Upgrading an Existing Database
 
-If you set your database up manually before this script existed, re-run `supabase/setup.sql` — it contains `ALTER TABLE … ADD COLUMN IF NOT EXISTS` guards throughout, so it will safely add any missing columns without touching existing data.
+If you set up the database manually before this script existed, just re-run `supabase/setup.sql`. It uses `ALTER TABLE … ADD COLUMN IF NOT EXISTS` throughout, so it will safely add any missing columns without touching your existing data.
