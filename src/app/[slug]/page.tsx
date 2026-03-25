@@ -1,23 +1,14 @@
-import { notFound } from "next/navigation";
-// ...existing code...
 import { getEntryBySlug } from "@/app/actions";
 import { ContentRenderer } from "@/components/ContentRenderer";
-import { GalleryGrid } from "@/components/GalleryGrid";
 import { EntryHero } from "@/components/EntryHero";
+import { GalleryGrid } from "@/components/GalleryGrid";
+import { getEmbedUrl } from "@/utils/utils";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
+export { generateMetadata } from "@/utils/metadata";
 export const revalidate = 60;
 
-// ---------------------------------------------------------------------------
-// SEO / Open Graph
-// ---------------------------------------------------------------------------
-export { generateMetadata } from "@/utils/metadata";
-
-import { getEmbedUrl } from "@/utils/utils";
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 export default async function EntryPage({
   params,
 }: {
