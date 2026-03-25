@@ -42,6 +42,9 @@ export function EntryForm({ initialData }: EntryFormProps) {
   const [thumbnailId, setThumbnailId] = useState(
     initialData?.thumbnail_id ?? "",
   );
+  const [thumbnailResourceType, setThumbnailResourceType] = useState<
+    "image" | "video"
+  >(initialData?.thumbnail_resource_type ?? "image");
   const [width, setWidth] = useState(initialData?.width ?? 0);
   const [height, setHeight] = useState(initialData?.height ?? 0);
   const [galleryIds, setGalleryIds] = useState<string[]>(
@@ -84,6 +87,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
       if (!res.ok) throw new Error("Upload failed");
       const json = await res.json();
       setThumbnailId(json.public_id);
+      setThumbnailResourceType(json.resource_type ?? "image");
       setWidth(json.width);
       setHeight(json.height);
     } catch (err) {
@@ -145,6 +149,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         slug,
         description: description || null,
         thumbnail_id: thumbnailId,
+        thumbnail_resource_type: thumbnailResourceType,
         content_json: contentJson,
         gallery_ids: galleryIds,
         width,

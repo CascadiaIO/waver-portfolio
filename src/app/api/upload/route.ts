@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: result.secure_url,
       public_id: result.public_id,
+      resource_type: result.resource_type,
       width: result.width,
       height: result.height,
     });
