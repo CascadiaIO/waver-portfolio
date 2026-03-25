@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CldImage } from "next-cloudinary";
 import { getEntryBySlug } from "@/app/actions";
 import { ContentRenderer } from "@/components/ContentRenderer";
 import { GalleryGrid } from "@/components/GalleryGrid";
+import { EntryHero } from "@/components/EntryHero";
 
 export const revalidate = 60;
 
@@ -66,40 +66,13 @@ export default async function EntryPage({
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Hero thumbnail */}
-      <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden">
-        {entry.thumbnail_resource_type === "video" ? (
-          <video
-            src={`https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/video/upload/${entry.thumbnail_id}`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <CldImage
-            src={entry.thumbnail_id}
-            alt={entry.title}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-        )}
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            {entry.title}
-          </h1>
-          {entry.description && (
-            <p className="mt-3 text-lg text-zinc-300 max-w-2xl">
-              {entry.description}
-            </p>
-          )}
-        </div>
-      </div>
+      <EntryHero
+        thumbnailId={entry.thumbnail_id}
+        thumbnailResourceType={entry.thumbnail_resource_type}
+        title={entry.title}
+        description={entry.description}
+        cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}
+      />
 
       {/* Content (Novel/Tiptap blocks) */}
       {entry.content_json && Object.keys(entry.content_json).length > 0 && (

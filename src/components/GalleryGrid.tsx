@@ -25,16 +25,19 @@ export function GalleryGrid({ photos }: GalleryGridProps) {
       targetRowHeight={320}
       spacing={8}
       render={{
-        image: (props, { photo }) => (
-          <CldImage
-            src={(photo as GalleryPhoto).publicId}
-            alt={props.alt ?? ""}
-            width={props.width as number}
-            height={props.height as number}
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        ),
+        image: (_props, { photo }) => {
+          const p = photo as GalleryPhoto;
+          return (
+            <CldImage
+              src={p.publicId}
+              alt={p.publicId}
+              width={p.width}
+              height={p.height}
+              className="object-cover w-full h-full"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          );
+        },
       }}
     />
   );
