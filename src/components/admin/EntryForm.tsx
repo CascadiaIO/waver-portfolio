@@ -165,6 +165,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         thumbnail_format: thumbnailFormat || null,
         video_url: videoUrl.trim() || null,
         category,
+        sort_order: initialData?.sort_order ?? 0,
         content_json: contentJson,
         gallery_ids: galleryIds,
         width,

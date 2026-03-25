@@ -18,6 +18,7 @@ export type Entry = {
   thumbnail_format: string | null;
   video_url: string | null;
   category: "wave" | "game" | "music" | "other";
+  sort_order: number;
   content_json: object;
   gallery_ids: string[];
   width: number;
@@ -34,6 +35,7 @@ export async function getEntries(): Promise<Entry[]> {
   const { data, error } = await supabase
     .from("entries")
     .select("*")
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -79,6 +81,18 @@ export async function deleteEntry(id: string): Promise<void> {
   const { error } = await supabase.from("entries").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/");
+}
+
+export async function updateEntryOrder(orderedIds: string[]): Promise<void> {
+  const supabase = await createClient();
+  // Update each row's sort_order in parallel
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from("entries").update({ sort_order: index }).eq("id", id),
+    ),
+  );
+  revalidatePath("/");
+  revalidatePath("/admin");
 }
 
 // ---------------------------------------------------------------------------
