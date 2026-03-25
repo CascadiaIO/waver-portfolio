@@ -42,12 +42,18 @@ export function AdminEditor({ initialContent, onChange }: AdminEditorProps) {
         {/* Bubble menu MUST be inside EditorContent */}
         <EditorBubble className="flex items-center gap-1 rounded-lg border border-zinc-600 bg-zinc-800 px-1 py-1 shadow-lg">
           <EditorBubbleItem
-            onSelect={(editor) => editor.chain().focus().toggleBold().run()}
+            onSelect={(editor) => {
+              editor.chain().focus().toggleBold().run();
+              console.log("Bold action:", editor.getJSON());
+            }}
             className="cursor-pointer rounded px-2 py-1 text-sm font-bold text-zinc-200 hover:bg-zinc-700 data-active:bg-zinc-700">
             B
           </EditorBubbleItem>
           <EditorBubbleItem
-            onSelect={(editor) => editor.chain().focus().toggleItalic().run()}
+            onSelect={(editor) => {
+              editor.chain().focus().toggleItalic().run();
+              console.log("Italic action:", editor.getJSON());
+            }}
             className="cursor-pointer rounded px-2 py-1 text-sm italic text-zinc-200 hover:bg-zinc-700 data-active:bg-zinc-700">
             I
           </EditorBubbleItem>
@@ -60,8 +66,10 @@ export function AdminEditor({ initialContent, onChange }: AdminEditorProps) {
               if (url === null) return;
               if (url === "") {
                 editor.chain().focus().unsetLink().run();
+                console.log("Unset link:", editor.getJSON());
               } else {
                 editor.chain().focus().setLink({ href: url }).run();
+                console.log("Set link:", editor.getJSON());
               }
             }}
             className="cursor-pointer rounded px-2 py-1 text-sm text-zinc-200 hover:bg-zinc-700 data-active:bg-zinc-700">
