@@ -16,6 +16,7 @@ export type Entry = {
   thumbnail_id: string;
   thumbnail_resource_type: "image" | "video";
   thumbnail_format: string | null;
+  video_url: string | null;
   content_json: object;
   gallery_ids: string[];
   width: number;

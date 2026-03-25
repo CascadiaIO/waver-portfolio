@@ -54,6 +54,9 @@ export function EntryForm({ initialData }: EntryFormProps) {
     initialData?.gallery_ids ?? [],
   );
 
+  // Embedded video link
+  const [videoUrl, setVideoUrl] = useState(initialData?.video_url ?? "");
+
   // Editor content
   const [contentJson, setContentJson] = useState<object>(
     initialData?.content_json ?? {},
@@ -155,6 +158,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         thumbnail_id: thumbnailId,
         thumbnail_resource_type: thumbnailResourceType,
         thumbnail_format: thumbnailFormat || null,
+        video_url: videoUrl.trim() || null,
         content_json: contentJson,
         gallery_ids: galleryIds,
         width,
@@ -216,6 +220,21 @@ export function EntryForm({ initialData }: EntryFormProps) {
             rows={3}
             className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none resize-none"
             placeholder="A brief description of this entry..."
+          />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm text-zinc-400">
+            Embedded Video Link{" "}
+            <span className="text-zinc-600">
+              (YouTube, Vimeo, or Google Drive)
+            </span>
+          </span>
+          <input
+            type="url"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
+            placeholder="https://www.youtube.com/watch?v=..."
           />
         </label>
       </section>
