@@ -18,7 +18,7 @@ export function EntryHero({
   cloudName,
 }: EntryHeroProps) {
   return (
-    <div className="relative w-full aspect-video max-h-[70vh] overflow-hidden">
+    <div className="relative w-full h-[30vh] overflow-hidden">
       {thumbnailResourceType === "video" ? (
         <video
           src={`https://res.cloudinary.com/${cloudName}/video/upload/${thumbnailId}`}

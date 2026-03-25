@@ -4,6 +4,7 @@ import { getEntryBySlug } from "@/app/actions";
 import { ContentRenderer } from "@/components/ContentRenderer";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { EntryHero } from "@/components/EntryHero";
+import Link from "next/link";
 
 export const revalidate = 60;
 
@@ -74,6 +75,14 @@ export default async function EntryPage({
         cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}
       />
 
+      <div className="px-6 pt-12">
+        <Link
+          href="/"
+          className=" text-zinc-500 hover:text-white transition-colors">
+          ← Back
+        </Link>
+      </div>
+
       {/* Content (Novel/Tiptap blocks) */}
       {entry.content_json && Object.keys(entry.content_json).length > 0 && (
         <section className="max-w-4xl mx-auto px-6 py-12">
@@ -89,13 +98,13 @@ export default async function EntryPage({
       )}
 
       {/* Back link */}
-      <div className="px-6 pb-12">
-        <a
+      {/* <div className="px-6 pb-12">
+        <Link
           href="/"
           className="text-sm text-zinc-500 hover:text-white transition-colors">
           ← Back
-        </a>
-      </div>
+        </Link>
+      </div> */}
     </main>
   );
 }
