@@ -34,7 +34,7 @@ export function HomeGrid({ entries }: HomeGridProps) {
       photos={photos}
       targetRowHeight={380}
       spacing={4}
-      rowConstraints={{ maxPhotos: 4 }}
+      rowConstraints={{ minPhotos: 2, maxPhotos: 4 }}
       render={{
         wrapper: (props, { photo }) => (
           <div

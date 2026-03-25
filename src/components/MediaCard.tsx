@@ -44,6 +44,11 @@ export function MediaCard({ entry }: MediaCardProps) {
     ? `https://res.cloudinary.com/${cloudName}/video/upload/q_auto/${entry.thumbnail_id}`
     : null;
 
+  // Still frame extracted from the video at an auto-selected interesting moment
+  const videoStillSrc = isVideo
+    ? `https://res.cloudinary.com/${cloudName}/video/upload/f_jpg,so_auto,q_auto,w_1200/${entry.thumbnail_id}.jpg`
+    : null;
+
   const handleMouseEnter = () => {
     setIsHovered(true);
     if (videoRef.current) {
@@ -69,10 +74,18 @@ export function MediaCard({ entry }: MediaCardProps) {
         className="absolute inset-0"
         whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.3, ease: "easeOut" }}>
-        {/* Static thumbnail — for GIFs shows first frame; for others shows normally */}
+        {/* Static thumbnail */}
         {isGif && gifStaticSrc ? (
+          // GIF: show first frame JPEG
           <img
             src={gifStaticSrc}
+            alt={entry.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : isVideo && videoStillSrc ? (
+          // Video: show an auto-selected still frame
+          <img
+            src={videoStillSrc}
             alt={entry.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
