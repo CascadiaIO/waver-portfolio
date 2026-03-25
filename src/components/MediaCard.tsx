@@ -134,23 +134,23 @@ export function MediaCard({ entry }: MediaCardProps) {
             }`}
           />
         )}
+      </motion.div>
 
-        {/* Title + category overlay on hover */}
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.2 }}>
-          <span className="flex-1 text-white font-medium text-sm leading-tight line-clamp-2">
-            {entry.title}
-          </span>
-          <span
-            className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
-              CATEGORY_STYLES[entry.category] ?? CATEGORY_STYLES.other
-            }`}>
-            {entry.category}
-          </span>
-        </motion.div>
+      {/* Title + category overlay — outside the scale div so text never clips */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end px-4 py-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.2 }}>
+        <span className="flex-1 text-white font-medium text-sm leading-tight line-clamp-2">
+          {entry.title}
+        </span>
+        <span
+          className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
+            CATEGORY_STYLES[entry.category] ?? CATEGORY_STYLES.other
+          }`}>
+          {entry.category}
+        </span>
       </motion.div>
     </Link>
   );
