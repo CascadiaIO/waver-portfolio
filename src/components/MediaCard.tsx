@@ -6,6 +6,13 @@ import { CldImage } from "next-cloudinary";
 import { motion } from "framer-motion";
 import type { Entry } from "@/app/actions";
 
+const CATEGORY_STYLES: Record<string, string> = {
+  wave: "bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-500/40",
+  game: "bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/40",
+  music: "bg-rose-500/20 text-rose-300 ring-1 ring-rose-500/40",
+  other: "bg-zinc-500/20 text-zinc-300 ring-1 ring-zinc-500/40",
+};
+
 interface MediaCardProps {
   entry: Pick<
     Entry,
@@ -14,6 +21,7 @@ interface MediaCardProps {
     | "thumbnail_id"
     | "thumbnail_resource_type"
     | "thumbnail_format"
+    | "category"
     | "width"
     | "height"
   >;
@@ -127,14 +135,20 @@ export function MediaCard({ entry }: MediaCardProps) {
           />
         )}
 
-        {/* Title overlay on hover */}
+        {/* Title + category overlay on hover */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.2 }}>
-          <span className="text-white font-medium text-sm leading-tight line-clamp-2">
+          <span className="flex-1 text-white font-medium text-sm leading-tight line-clamp-2">
             {entry.title}
+          </span>
+          <span
+            className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${
+              CATEGORY_STYLES[entry.category] ?? CATEGORY_STYLES.other
+            }`}>
+            {entry.category}
           </span>
         </motion.div>
       </motion.div>

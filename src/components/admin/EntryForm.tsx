@@ -54,6 +54,11 @@ export function EntryForm({ initialData }: EntryFormProps) {
     initialData?.gallery_ids ?? [],
   );
 
+  // Category
+  const [category, setCategory] = useState<Entry["category"]>(
+    initialData?.category ?? "other",
+  );
+
   // Embedded video link
   const [videoUrl, setVideoUrl] = useState(initialData?.video_url ?? "");
 
@@ -159,6 +164,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         thumbnail_resource_type: thumbnailResourceType,
         thumbnail_format: thumbnailFormat || null,
         video_url: videoUrl.trim() || null,
+        category,
         content_json: contentJson,
         gallery_ids: galleryIds,
         width,
@@ -221,6 +227,18 @@ export function EntryForm({ initialData }: EntryFormProps) {
             className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none resize-none"
             placeholder="A brief description of this entry..."
           />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm text-zinc-400">Category *</span>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Entry["category"])}
+            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 focus:border-zinc-500 focus:outline-none">
+            <option value="wave">Wave</option>
+            <option value="game">Game</option>
+            <option value="music">Music</option>
+            <option value="other">Other</option>
+          </select>
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-sm text-zinc-400">
