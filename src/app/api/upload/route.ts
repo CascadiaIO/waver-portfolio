@@ -14,6 +14,7 @@ export async function POST(request: NextRequest) {
       url: result.secure_url,
       public_id: result.public_id,
       resource_type: result.resource_type,
+      format: result.format,
       width: result.width,
       height: result.height,
     });

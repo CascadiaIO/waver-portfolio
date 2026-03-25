@@ -45,6 +45,9 @@ export function EntryForm({ initialData }: EntryFormProps) {
   const [thumbnailResourceType, setThumbnailResourceType] = useState<
     "image" | "video"
   >(initialData?.thumbnail_resource_type ?? "image");
+  const [thumbnailFormat, setThumbnailFormat] = useState<string>(
+    initialData?.thumbnail_format ?? "",
+  );
   const [width, setWidth] = useState(initialData?.width ?? 0);
   const [height, setHeight] = useState(initialData?.height ?? 0);
   const [galleryIds, setGalleryIds] = useState<string[]>(
@@ -88,6 +91,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
       const json = await res.json();
       setThumbnailId(json.public_id);
       setThumbnailResourceType(json.resource_type ?? "image");
+      setThumbnailFormat(json.format ?? "");
       setWidth(json.width);
       setHeight(json.height);
     } catch (err) {
@@ -150,6 +154,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         description: description || null,
         thumbnail_id: thumbnailId,
         thumbnail_resource_type: thumbnailResourceType,
+        thumbnail_format: thumbnailFormat || null,
         content_json: contentJson,
         gallery_ids: galleryIds,
         width,

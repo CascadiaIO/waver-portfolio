@@ -11,6 +11,7 @@ type GridEntry = Pick<
   | "title"
   | "thumbnail_id"
   | "thumbnail_resource_type"
+  | "thumbnail_format"
   | "width"
   | "height"
 >;

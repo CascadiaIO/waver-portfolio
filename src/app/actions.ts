@@ -15,6 +15,7 @@ export type Entry = {
   description: string | null;
   thumbnail_id: string;
   thumbnail_resource_type: "image" | "video";
+  thumbnail_format: string | null;
   content_json: object;
   gallery_ids: string[];
   width: number;
@@ -86,6 +87,7 @@ export async function uploadToCloudinary(formData: FormData): Promise<{
   public_id: string;
   secure_url: string;
   resource_type: "image" | "video";
+  format: string;
   width: number;
   height: number;
 }> {
@@ -105,6 +107,7 @@ export async function uploadToCloudinary(formData: FormData): Promise<{
           public_id: result.public_id,
           secure_url: result.secure_url,
           resource_type: (result.resource_type ?? "image") as "image" | "video",
+          format: result.format ?? "",
           width: result.width,
           height: result.height,
         });
