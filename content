@@ -1,0 +1,65 @@
+# ************************************************************************************************
+# Run these powershell commands against an mp4 (3-5 seconds) to get a condensed and optimized gif.
+# ************************************************************************************************
+
+
+ffmpeg -y -i Thumb-Animal-Farm.mp4 -vf "fps=24,scale=540:-1:flags=lanczos,palettegen=max_colors=32" palette.png
+ffmpeg -y -i Thumb-Animal-Farm.mp4 -y -i palette.png -lavfi "fps=24,scale=540:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" Thumb-Animal-Farm.gif
+
+
+# ****************************************************
+# THIS IS A SCRIPT TO DO THE ABOVE COMMANDS IN A LOOP:
+# ****************************************************
+
+
+# Get the directory where this script lives
+# $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+# Hardcode where Powershell Script lives
+$scriptDir = "FOLDER_WHERE_POWERSHELL_SCRIPT_IS"
+
+$videosFolder = Join-Path $scriptDir "Videos"
+$gifsFolder   = Join-Path $scriptDir "Gifs"
+
+Write-Host "Beginning Process"
+
+# Create Gifs folder if it doesn't exist
+if (-not (Test-Path $gifsFolder)) {
+    New-Item -ItemType Directory -Path $gifsFolder | Out-Null
+    Write-Host "Created Gifs folder at: $gifsFolder"
+}
+
+# Get all mp4s in the Videos folder
+$videos = Get-ChildItem -Path $videosFolder -Filter "*.mp4"
+
+if ($videos.Count -eq 0) {
+    Write-Host "No MP4 files found in $videosFolder"
+    exit
+}
+
+Write-Host "Found $($videos.Count) video(s) to process.`n"
+
+foreach ($video in $videos) {
+    $videoPath  = $video.FullName
+    $baseName   = $video.BaseName          # filename without extension
+    $palettePath = Join-Path $scriptDir "palette.png"
+    $gifPath    = Join-Path $gifsFolder "$baseName.gif"
+
+    Write-Host "Processing: $($video.Name)"
+
+    # Step 1: Generate palette
+    ffmpeg -y -i "$videoPath" -vf "fps=24,scale=540:-1:flags=lanczos,palettegen=max_colors=32" "$palettePath"
+
+    # Step 2: Generate GIF using the palette
+    ffmpeg -y -i "$videoPath" -i "$palettePath" -lavfi "fps=24,scale=540:-1:flags=lanczos[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3" "$gifPath"
+
+    Write-Host "Saved GIF: $gifPath`n"
+}
+
+# Clean up temporary palette file
+if (Test-Path $palettePath) {
+    Remove-Item $palettePath
+    Write-Host "Cleaned up palette.png"
+}
+
+Write-Host "All done!"

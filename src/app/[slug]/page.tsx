@@ -35,6 +35,7 @@ export default async function EntryPage({
       {/* Hero thumbnail */}
       <EntryHero
         thumbnailId={entry.thumbnail_id}
+        thumbnailFormat={entry.thumbnail_format}
         thumbnailResourceType={entry.thumbnail_resource_type}
         title={entry.title}
         description={entry.description}
@@ -97,7 +98,7 @@ export default async function EntryPage({
 
       {/* Gallery grid */}
       {galleryPhotos.length > 0 && (
-        <section className="px-4 pb-12">
+        <section className="max-w-4xl mx-auto px-6 pb-12">
           <GalleryGrid photos={galleryPhotos} />
         </section>
       )}
