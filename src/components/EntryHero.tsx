@@ -5,6 +5,7 @@ import { CldImage } from "next-cloudinary";
 interface EntryHeroProps {
   thumbnailId: string;
   thumbnailResourceType: "image" | "video";
+  thumbnailFormat?: string | null; // 👈 add this
   title: string;
   description: string | null;
   cloudName: string;
@@ -13,10 +14,13 @@ interface EntryHeroProps {
 export function EntryHero({
   thumbnailId,
   thumbnailResourceType,
+  thumbnailFormat,
   title,
   description,
   cloudName,
 }: EntryHeroProps) {
+  const isGif = thumbnailFormat?.toLowerCase() === "gif";
+
   return (
     <div className="relative w-full h-[30vh] overflow-hidden">
       {thumbnailResourceType === "video" ? (
@@ -26,6 +30,12 @@ export function EntryHero({
           muted
           loop
           playsInline
+          className="w-full h-full object-cover"
+        />
+      ) : isGif ? (
+        <img
+          src={`https://res.cloudinary.com/${cloudName}/image/upload/pg_1,f_auto/${thumbnailId}`}
+          alt={title}
           className="w-full h-full object-cover"
         />
       ) : (
