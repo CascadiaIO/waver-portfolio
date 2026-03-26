@@ -8,14 +8,14 @@ export default async function HomePage() {
 
   if (entries.length === 0) {
     return (
-      <main className="min-h-screen bg-black flex items-center justify-center">
+      <main className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-zinc-600 text-sm">No entries yet.</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black p-2">
+    <main className="min-h-screen bg-background p-2">
       <HomeGrid entries={entries} />
     </main>
   );

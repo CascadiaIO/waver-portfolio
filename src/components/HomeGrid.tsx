@@ -34,12 +34,13 @@ export function HomeGrid({ entries }: HomeGridProps) {
     <RowsPhotoAlbum
       photos={photos}
       targetRowHeight={380}
-      spacing={4}
+      spacing={18}
       rowConstraints={{ minPhotos: 2, maxPhotos: 4 }}
       render={{
         wrapper: (props, { photo }) => (
           <div
             {...props}
+            className={`border-2 border-zinc-900 rounded-lg ${props.className ?? ""}`}
             style={{
               ...props.style,
               position: "relative",
