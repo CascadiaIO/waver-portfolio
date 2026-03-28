@@ -19,25 +19,73 @@ Before you start, create free accounts on all four of these services. You will n
 
 ## Overview
 
-The full setup has five stages. Follow them in order.
+The full setup has six stages. Follow them in order.
 
-1. Get the code onto GitHub
-2. Set up Supabase (database + auth)
-3. Set up Cloudinary (media storage)
-4. Deploy to Vercel (connect everything)
-5. Run locally for development
+1. Personalize your site content
+2. Get the code onto GitHub
+3. Set up Supabase (database + auth)
+4. Set up Cloudinary (media storage)
+5. Deploy to Vercel (connect everything)
+6. Run locally for development
 
 ---
 
-## Stage 1 — Get the Code onto GitHub
+## A Note on Secrets vs. Personal Content
 
-### 1a. Fork or use this template
+**Secrets (API keys, database passwords):** None of these are stored in the source code. They live only in your `.env.local` file locally, and in Vercel's Environment Variables for production. `.env.local` is already in `.gitignore` — it cannot accidentally be committed.
+
+**Personal content (your name, bio, links):** These _are_ in source files, which will be public once you push to GitHub. That is fine — they are just text, not credentials. Stage 1 below tells you exactly which files to edit.
+
+---
+
+## Stage 1 — Personalize Your Site
+
+Before pushing to GitHub, update these files with your own information. They currently contain placeholder text.
+
+### 1a. Your Name and Tagline — `src/app/page.tsx`
+
+Open `src/app/page.tsx` and update the two sections near the top of the `return` block:
+
+```tsx
+<SiteHeader name="Your Name" />
+<SiteDescription>
+  Your tagline or description goes here.
+</SiteDescription>
+```
+
+### 1b. Social Links — `src/lib/data/homeLinks.ts`
+
+Open `src/lib/data/homeLinks.ts` and update each `link:` value with your own URLs.
+
+- **Remove** any entry for a platform you don't use by deleting it from the array.
+- **Add** a new entry by copying the pattern and importing a new icon from `react-icons/fa`. Browse available icons at [react-icons.github.io/react-icons](https://react-icons.github.io/react-icons/).
+
+### 1c. Site Title and Meta Description — `src/app/layout.tsx`
+
+Open `src/app/layout.tsx` and update the `metadata` object:
+
+```ts
+export const metadata: Metadata = {
+  title: "Your Name — Portfolio",
+  description: "Short description of what you do",
+};
+```
+
+### 1d. (Optional) Cloudinary Upload Folder — `src/app/actions.ts`
+
+By default, all your uploads go into a Cloudinary folder called `waver-portfolio`. To use a different folder name, open `src/app/actions.ts` and search for `"waver-portfolio"` — change it to anything you like. (This only affects how files are organized inside Cloudinary — it has no effect on the site itself.)
+
+---
+
+## Stage 2 — Get the Code onto GitHub
+
+### 2a. Fork or use this template
 
 - If this repo is a template: click **Use this template → Create a new repository**
 - Otherwise: click **Fork** (top-right on GitHub)
 - Choose a name for your repo, set visibility to **Public**, and click **Create**
 
-### 1b. Clone it to your machine
+### 2b. Clone it to your machine
 
 ```bash
 git clone https://github.com/YOUR-USERNAME/YOUR-REPO-NAME.git
@@ -45,24 +93,24 @@ cd YOUR-REPO-NAME
 npm install
 ```
 
-> You need [Node.js 18 or higher](https://nodejs.org). Check with `node -v`.
+> You need [Node.js 18 or higher](https://nodejs.org). Check with `node -v`. I'm using 22.13.1
 
-### 1c. Important — never commit secrets
+### 2c. Important — never commit secrets
 
-The `.env.local` file (created in stage 5) is already listed in `.gitignore` so it will never be uploaded to GitHub. **Never remove it from `.gitignore`.**
+The `.env.local` file (created in Stage 6) is already listed in `.gitignore` so it will never be uploaded to GitHub. **Never remove it from `.gitignore`.**
 
 ---
 
-## Stage 2 — Supabase Setup
+## Stage 3 — Supabase Setup
 
-### 2a. Create a project
+### 3a. Create a project
 
 1. Go to [supabase.com](https://supabase.com) and sign in
 2. Click **New project**
 3. Fill in a project name, set a strong database password (save it somewhere), and choose the region closest to you
 4. Click **Create new project** and wait ~2 minutes for it to provision
 
-### 2b. Run the database setup script
+### 3b. Run the database setup script
 
 This repo includes a single SQL script that creates your entire database from scratch.
 
@@ -80,7 +128,7 @@ You should see a table of columns at the bottom confirming success.
 - A sort index for efficient ordering
 - Row-Level Security (RLS) so the public can only read data, and only logged-in admins can create, edit, or delete entries
 
-### 2c. Create your admin login
+### 3c. Create your admin login
 
 1. In Supabase, click **Authentication** in the left sidebar
 2. Click **Users → Add user → Create new user**
@@ -89,7 +137,7 @@ You should see a table of columns at the bottom confirming success.
 
 > This is the only account you need. There is no public sign-up — only you can log in.
 
-### 2d. Copy your Supabase API keys
+### 3d. Copy your Supabase API keys
 
 1. In Supabase, click **Project Settings** (gear icon, bottom-left)
 2. Click **API** in the settings menu
@@ -104,16 +152,16 @@ You should see a table of columns at the bottom confirming success.
 
 ---
 
-## Stage 3 — Cloudinary Setup
+## Stage 4 — Cloudinary Setup
 
 Cloudinary stores and serves all the images, GIFs, and videos you upload through the admin.
 
-### 3a. Create an account
+### 4a. Create an account
 
 1. Go to [cloudinary.com](https://cloudinary.com) and sign up
 2. You will land on the **Dashboard**
 
-### 3b. Copy your credentials
+### 4b. Copy your credentials
 
 On the Dashboard you will see a box called **Product Environment Credentials**. Copy all three values:
 
@@ -125,29 +173,29 @@ On the Dashboard you will see a box called **Product Environment Credentials**. 
 
 > The API Secret is sensitive — treat it like a password. Never put it in code or commit it to GitHub.
 
-### 3c. (Optional) Configure upload settings
+### 4c. (Optional) Configure upload settings
 
-The app automatically creates a folder called `waver-portfolio` in your Cloudinary account on the first upload. No manual setup needed.
+The app automatically creates a folder in your Cloudinary account on the first upload. By default the folder is called `waver-portfolio` — see Stage 1d above if you want to rename it.
 
 ---
 
-## Stage 4 — Deploy to Vercel
+## Stage 5 — Deploy to Vercel
 
 Vercel reads your code from GitHub and hosts the app. This is also where you safely store all your secret keys.
 
-### 4a. Create a Vercel account
+### 5a. Create a Vercel account
 
 1. Go to [vercel.com](https://vercel.com) and click **Sign Up**
 2. Choose **Continue with GitHub** — this links your accounts so Vercel can see your repos
 
-### 4b. Import your repository
+### 5b. Import your repository
 
 1. On the Vercel dashboard click **Add New… → Project**
 2. Find your repository in the list and click **Import**
 3. Leave all the build settings as-is (Vercel detects Next.js automatically)
 4. **Before clicking Deploy**, scroll down to **Environment Variables**
 
-### 4c. Add your environment variables to Vercel
+### 5c. Add your environment variables to Vercel
 
 Add each of the five variables below. Click **Add** after each one.
 
@@ -161,13 +209,13 @@ Add each of the five variables below. Click **Add** after each one.
 
 > Make sure all five are entered before deploying. You can add or edit them later under **Project Settings → Environment Variables**, but you will need to redeploy after any change.
 
-### 4d. Deploy
+### 5d. Deploy
 
 Click **Deploy**. Vercel will build and publish your site. This takes about 1–2 minutes.
 
 When it finishes, Vercel gives you a URL like `https://your-project-name.vercel.app`. Copy it.
 
-### 4e. Tell Supabase your live URL
+### 5e. Tell Supabase your live URL
 
 Supabase needs to know your production URL so that login redirects work correctly.
 
@@ -180,11 +228,11 @@ Your site is now live.
 
 ---
 
-## Stage 5 — Run Locally (for Development)
+## Stage 6 — Run Locally (for Development)
 
 To work on the code on your own machine, you need a local copy of all the environment variables.
 
-### 5a. Create `.env.local`
+### 6a. Create `.env.local`
 
 In the root of your project, create a file called `.env.local` and paste in the following, filling in your real values:
 
@@ -201,7 +249,7 @@ CLOUDINARY_API_SECRET=your-api-secret-here
 
 > This file is already in `.gitignore`. It will never be uploaded to GitHub. Keep it private.
 
-### 5b. Start the dev server
+### 6b. Start the dev server
 
 ```bash
 npm run dev
