@@ -5,6 +5,7 @@ import { GalleryGrid } from "@/components/GalleryGrid";
 import { getEmbedUrl } from "@/utils/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SiteHeader from "@/components/SiteHeader";
 
 export { generateMetadata } from "@/utils/metadata";
 export const revalidate = 60;
@@ -32,6 +33,7 @@ export default async function EntryPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <SiteHeader name={entry.title} />
       {/* Hero thumbnail */}
       <EntryHero
         thumbnailId={entry.thumbnail_id}
