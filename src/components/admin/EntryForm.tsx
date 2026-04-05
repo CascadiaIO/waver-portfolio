@@ -344,6 +344,10 @@ export function EntryForm({ initialData }: EntryFormProps) {
           <span className="text-sm font-normal text-zinc-500">
             (shown in the grid — determines aspect ratio)
           </span>
+          <p className="text-xs font-normal text-zinc-600 mt-1">
+            If used as the detail page header, it will be cropped to fill a wide
+            banner.
+          </p>
         </h2>
         <div className="flex items-start gap-6">
           {thumbnailId && (
@@ -415,11 +419,10 @@ export function EntryForm({ initialData }: EntryFormProps) {
           {!useThumbAsHeader && (
             <div className="flex flex-col gap-3 ml-6 mt-1">
               <span className="text-sm text-zinc-400">
-                Header image *{" "}
-                <span className="text-zinc-600">
-                  (hi-res image shown at top of the detail page)
-                </span>
+                Recommended size:{" "}
+                <strong className="text-zinc-500">1920 × 400 px</strong>
               </span>
+
               <div className="flex items-start gap-6">
                 {headerId && (
                   <div className="flex flex-col gap-1">
