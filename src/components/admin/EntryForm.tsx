@@ -59,8 +59,10 @@ export function EntryForm({ initialData }: EntryFormProps) {
     initialData?.category ?? "other",
   );
 
-  // Embedded video link
-  const [videoUrl, setVideoUrl] = useState(initialData?.video_url ?? "");
+  // Embedded video links
+  const [videoUrls, setVideoUrls] = useState<string[]>(
+    initialData?.video_urls ?? [],
+  );
 
   // Editor content
   const [contentJson, setContentJson] = useState<object>(
@@ -164,7 +166,7 @@ export function EntryForm({ initialData }: EntryFormProps) {
         thumbnail_id: thumbnailId,
         thumbnail_resource_type: thumbnailResourceType,
         thumbnail_format: thumbnailFormat || null,
-        video_url: videoUrl.trim() || null,
+        video_urls: videoUrls.map((u) => u.trim()).filter(Boolean),
         category,
         sort_order: initialData?.sort_order ?? 0,
         content_json: JSON.parse(JSON.stringify(contentJson)),
@@ -244,21 +246,46 @@ export function EntryForm({ initialData }: EntryFormProps) {
             <option value="other">Other</option>
           </select>
         </label>
-        <label className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5">
           <span className="text-sm text-zinc-400">
-            Embedded Video Link{" "}
+            Embedded Videos{" "}
             <span className="text-zinc-600">
-              (YouTube, Vimeo, or Google Drive)
+              (YouTube, Vimeo, or Google Drive — none, one, or many)
             </span>
           </span>
-          <input
-            type="url"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
-            placeholder="https://www.youtube.com/watch?v=..."
-          />
-        </label>
+          <div className="flex flex-col gap-2">
+            {videoUrls.map((url, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => {
+                    const updated = [...videoUrls];
+                    updated[i] = e.target.value;
+                    setVideoUrls(updated);
+                  }}
+                  className="flex-1 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setVideoUrls(videoUrls.filter((_, j) => j !== i))
+                  }
+                  className="px-2 text-zinc-500 hover:text-red-400 transition-colors"
+                  title="Remove video">
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setVideoUrls([...videoUrls, ""])}
+            className="self-start text-sm text-zinc-400 hover:text-zinc-200 transition-colors">
+            + Add video
+          </button>
+        </div>
       </section>
 
       {/* Thumbnail */}
