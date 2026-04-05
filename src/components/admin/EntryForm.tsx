@@ -342,11 +342,11 @@ export function EntryForm({ initialData }: EntryFormProps) {
         <h2 className="text-lg font-semibold border-b border-zinc-800 pb-2">
           Thumbnail *{" "}
           <span className="text-sm font-normal text-zinc-500">
-            (shown in the grid — determines aspect ratio)
+            (shown in the gallery grid)
           </span>
           <p className="text-xs font-normal text-zinc-600 mt-1">
-            If used as the detail page header, it will be cropped to fill a wide
-            banner.
+            If used as the detail page header, it will be cropped to fill the
+            wide banner.
           </p>
         </h2>
         <div className="flex items-start gap-6">
