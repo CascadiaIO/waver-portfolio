@@ -35,8 +35,13 @@ CREATE TABLE IF NOT EXISTS entries (
   width                   INTEGER       NOT NULL DEFAULT 16,
   height                  INTEGER       NOT NULL DEFAULT 9,
 
-  -- Embedded video (YouTube / Vimeo / Google Drive share URL)
-  video_url               TEXT,
+  -- Embedded videos (YouTube / Vimeo / Google Drive share URLs)
+  video_urls              TEXT[]        NOT NULL DEFAULT '{}',
+
+  -- Detail page header (optional — NULL means use the thumbnail)
+  header_id               TEXT,                           -- Cloudinary public_id
+  header_format           TEXT,                           -- e.g. 'gif', 'jpg'
+  animate_header          BOOLEAN       NOT NULL DEFAULT false,
 
   -- Category
   category                TEXT          NOT NULL DEFAULT 'other'
@@ -115,8 +120,26 @@ ALTER TABLE entries
 ALTER TABLE entries
   ADD COLUMN IF NOT EXISTS thumbnail_format TEXT;
 
+-- Migrate video_url (single TEXT) → video_urls (TEXT array)
+-- Step 1: add the new array column
 ALTER TABLE entries
-  ADD COLUMN IF NOT EXISTS video_url TEXT;
+  ADD COLUMN IF NOT EXISTS video_urls TEXT[] NOT NULL DEFAULT '{}';
+
+-- Step 2: copy any existing single URL into the array (only if column still exists)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'entries' AND column_name = 'video_url'
+  ) THEN
+    UPDATE entries
+    SET video_urls = ARRAY[video_url]
+    WHERE video_url IS NOT NULL AND video_urls = '{}';
+
+    ALTER TABLE entries DROP COLUMN video_url;
+  END IF;
+END;
+$$;
 
 ALTER TABLE entries
   ADD COLUMN IF NOT EXISTS category TEXT NOT NULL DEFAULT 'other'
@@ -136,6 +159,16 @@ FROM (
 ) sub
 WHERE entries.id = sub.id
   AND entries.sort_order = 0;
+
+-- Detail page header columns
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS header_id TEXT;
+
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS header_format TEXT;
+
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS animate_header BOOLEAN NOT NULL DEFAULT false;
 
 
 -- ---------------------------------------------------------------------------

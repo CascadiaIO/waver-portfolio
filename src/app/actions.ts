@@ -16,7 +16,10 @@ export type Entry = {
   thumbnail_id: string;
   thumbnail_resource_type: "image" | "video";
   thumbnail_format: string | null;
-  video_url: string | null;
+  video_urls: string[];
+  header_id: string | null;
+  header_format: string | null;
+  animate_header: boolean;
   category: "wave" | "game" | "music" | "other";
   sort_order: number;
   content_json: object;

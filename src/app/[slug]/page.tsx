@@ -33,35 +33,38 @@ export default async function EntryPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <SiteHeader name={entry.title} />
-      {/* Hero thumbnail */}
-      <EntryHero
-        thumbnailId={entry.thumbnail_id}
-        thumbnailFormat={entry.thumbnail_format}
-        thumbnailResourceType={entry.thumbnail_resource_type}
-        title={entry.title}
-        description={entry.description}
-        cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}
-      />
+      <div className="max-w-[1920px] mx-auto">
+        {/* Hero thumbnail */}
+        <EntryHero
+          thumbnailId={entry.thumbnail_id}
+          thumbnailFormat={entry.thumbnail_format}
+          thumbnailResourceType={entry.thumbnail_resource_type}
+          headerId={entry.header_id}
+          headerFormat={entry.header_format}
+          animateHeader={entry.animate_header}
+          title={entry.title}
+          description={entry.description}
+          cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}
+        />
 
-      <div className="px-6 pt-12">
-        <Link
-          href="/"
-          className=" text-zinc-500 hover:text-white transition-colors">
-          ← Back
-        </Link>
-      </div>
+        <div className="px-6 pt-12">
+          <Link
+            href="/"
+            className=" text-zinc-500 hover:text-white transition-colors">
+            ← Back
+          </Link>
+        </div>
 
-      {/* Embedded video */}
-      {entry.video_url &&
-        (() => {
-          const embedUrl = getEmbedUrl(entry.video_url);
-          return embedUrl ? (
-            <section className="max-w-4xl mx-auto px-6 pt-8">
+        {/* Embedded videos */}
+        {entry.video_urls.map((url, i) => {
+          const embedUrl = getEmbedUrl(url);
+          if (!embedUrl) return null;
+          return (
+            <section key={i} className="max-w-4xl mx-auto px-6 pt-8">
               <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-zinc-900">
                 <iframe
                   src={embedUrl}
-                  title={entry.title}
+                  title={`${entry.title}${entry.video_urls.length > 1 ? ` (${i + 1})` : ""}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   className="absolute inset-0 w-full h-full border-0"
@@ -69,7 +72,7 @@ export default async function EntryPage({
               </div>
               <div className="mt-3 flex justify-end">
                 <a
-                  href={entry.video_url}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-white transition-colors">
@@ -88,22 +91,23 @@ export default async function EntryPage({
                 </a>
               </div>
             </section>
-          ) : null;
-        })()}
+          );
+        })}
 
-      {/* Content (Novel/Tiptap blocks) */}
-      {entry.content_json && Object.keys(entry.content_json).length > 0 && (
-        <section className="max-w-4xl mx-auto px-6 py-12">
-          <ContentRenderer content={entry.content_json} />
-        </section>
-      )}
+        {/* Content (Novel/Tiptap blocks) */}
+        {entry.content_json && Object.keys(entry.content_json).length > 0 && (
+          <section className="max-w-4xl mx-auto px-6 py-12">
+            <ContentRenderer content={entry.content_json} />
+          </section>
+        )}
 
-      {/* Gallery grid */}
-      {galleryPhotos.length > 0 && (
-        <section className="max-w-4xl mx-auto px-6 pb-12">
-          <GalleryGrid photos={galleryPhotos} />
-        </section>
-      )}
+        {/* Gallery grid */}
+        {galleryPhotos.length > 0 && (
+          <section className="max-w-4xl mx-auto px-6 pb-12">
+            <GalleryGrid photos={galleryPhotos} />
+          </section>
+        )}
+      </div>
     </main>
   );
 }
