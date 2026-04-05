@@ -33,12 +33,14 @@ export default async function EntryPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
-      <SiteHeader name={entry.title} />
       {/* Hero thumbnail */}
       <EntryHero
         thumbnailId={entry.thumbnail_id}
         thumbnailFormat={entry.thumbnail_format}
         thumbnailResourceType={entry.thumbnail_resource_type}
+        headerId={entry.header_id}
+        headerFormat={entry.header_format}
+        animateHeader={entry.animate_header}
         title={entry.title}
         description={entry.description}
         cloudName={process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}

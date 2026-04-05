@@ -5,7 +5,10 @@ import { CldImage } from "next-cloudinary";
 interface EntryHeroProps {
   thumbnailId: string;
   thumbnailResourceType: "image" | "video";
-  thumbnailFormat?: string | null; // 👈 add this
+  thumbnailFormat?: string | null;
+  headerId?: string | null;
+  headerFormat?: string | null;
+  animateHeader?: boolean;
   title: string;
   description: string | null;
   cloudName: string;
@@ -15,15 +18,23 @@ export function EntryHero({
   thumbnailId,
   thumbnailResourceType,
   thumbnailFormat,
+  headerId,
+  headerFormat,
+  animateHeader = false,
   title,
   description,
   cloudName,
 }: EntryHeroProps) {
-  const isGif = thumbnailFormat?.toLowerCase() === "gif";
+  // Decide which asset to display as the hero
+  const useCustomHeader = !!headerId;
+  const activeId = useCustomHeader ? headerId! : thumbnailId;
+  const activeFormat = useCustomHeader ? headerFormat : thumbnailFormat;
+  const isGif = activeFormat?.toLowerCase() === "gif";
 
   return (
     <div className="relative w-full h-[30vh] overflow-hidden">
-      {thumbnailResourceType === "video" ? (
+      {/* Video thumbnail — only when no custom header overrides it */}
+      {!useCustomHeader && thumbnailResourceType === "video" ? (
         <video
           src={`https://res.cloudinary.com/${cloudName}/video/upload/${thumbnailId}`}
           autoPlay
@@ -34,13 +45,17 @@ export function EntryHero({
         />
       ) : isGif ? (
         <img
-          src={`https://res.cloudinary.com/${cloudName}/image/upload/pg_1,f_auto/${thumbnailId}`}
+          src={
+            animateHeader
+              ? `https://res.cloudinary.com/${cloudName}/image/upload/${activeId}`
+              : `https://res.cloudinary.com/${cloudName}/image/upload/pg_1,f_auto/${activeId}`
+          }
           alt={title}
           className="w-full h-full object-cover"
         />
       ) : (
         <CldImage
-          src={thumbnailId}
+          src={activeId}
           alt={title}
           fill
           className="object-cover"

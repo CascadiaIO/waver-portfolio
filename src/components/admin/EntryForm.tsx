@@ -73,6 +73,25 @@ export function EntryForm({ initialData }: EntryFormProps) {
   const [thumbUploading, setThumbUploading] = useState(false);
   const [galleryUploading, setGalleryUploading] = useState(false);
 
+  // Header image
+  // useThumbAsHeader=true means no separate header_id — thumbnail doubles as header
+  const [useThumbAsHeader, setUseThumbAsHeader] = useState(
+    initialData?.header_id == null,
+  );
+  const [headerId, setHeaderId] = useState(initialData?.header_id ?? "");
+  const [headerFormat, setHeaderFormat] = useState(
+    initialData?.header_format ?? "",
+  );
+  const [animateHeader, setAnimateHeader] = useState(
+    initialData?.animate_header ?? false,
+  );
+  const [headerUploading, setHeaderUploading] = useState(false);
+
+  // Derived helpers
+  const thumbnailIsGif = thumbnailFormat?.toLowerCase() === "gif";
+  const headerIsGif = headerFormat?.toLowerCase() === "gif";
+  const activeHeaderIsGif = useThumbAsHeader ? thumbnailIsGif : headerIsGif;
+
   const handleTitleChange = (val: string) => {
     setTitle(val);
     if (!slugLocked) setSlug(toSlug(val));
@@ -145,6 +164,29 @@ export function EntryForm({ initialData }: EntryFormProps) {
     setGalleryIds((prev) => prev.filter((id) => id !== publicId));
   };
 
+  const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setHeaderUploading(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const json = await res.json();
+      setHeaderId(json.public_id);
+      setHeaderFormat(json.format ?? "");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setHeaderUploading(false);
+    }
+  };
+
   const handleEditorChange = useCallback((json: object) => {
     setContentJson(json);
   }, []);
@@ -154,6 +196,10 @@ export function EntryForm({ initialData }: EntryFormProps) {
     if (!title.trim()) return setError("Title is required.");
     if (!slug.trim()) return setError("Slug is required.");
     if (!thumbnailId) return setError("A thumbnail image is required.");
+    if (!useThumbAsHeader && !headerId)
+      return setError(
+        'A separate header image is required, or enable "Use thumbnail as page header".',
+      );
 
     setIsPending(true);
 
@@ -167,6 +213,9 @@ export function EntryForm({ initialData }: EntryFormProps) {
         thumbnail_resource_type: thumbnailResourceType,
         thumbnail_format: thumbnailFormat || null,
         video_urls: videoUrls.map((u) => u.trim()).filter(Boolean),
+        header_id: useThumbAsHeader ? null : headerId || null,
+        header_format: useThumbAsHeader ? null : headerFormat || null,
+        animate_header: animateHeader,
         category,
         sort_order: initialData?.sort_order ?? 0,
         content_json: JSON.parse(JSON.stringify(contentJson)),
@@ -327,6 +376,97 @@ export function EntryForm({ initialData }: EntryFormProps) {
               <span className="text-sm text-zinc-500">Uploading…</span>
             )}
           </label>
+        </div>
+
+        {/* Header image options */}
+        <div className="flex flex-col gap-3 rounded-md border border-zinc-800 bg-zinc-950 p-4">
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={useThumbAsHeader}
+              onChange={(e) => {
+                setUseThumbAsHeader(e.target.checked);
+                // Reset animate flag when switching modes
+                setAnimateHeader(false);
+              }}
+              className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 accent-zinc-400"
+            />
+            <span className="text-sm text-zinc-300">
+              Use thumbnail as detail page header
+            </span>
+          </label>
+
+          {/* Animate option — shown when the active header is a GIF */}
+          {activeHeaderIsGif && (
+            <label className="flex items-center gap-2.5 cursor-pointer ml-6">
+              <input
+                type="checkbox"
+                checked={animateHeader}
+                onChange={(e) => setAnimateHeader(e.target.checked)}
+                className="h-4 w-4 rounded border-zinc-600 bg-zinc-800 accent-zinc-400"
+              />
+              <span className="text-sm text-zinc-300">
+                Animate GIF on detail page
+              </span>
+            </label>
+          )}
+
+          {/* Separate header upload — shown when not using thumbnail as header */}
+          {!useThumbAsHeader && (
+            <div className="flex flex-col gap-3 ml-6 mt-1">
+              <span className="text-sm text-zinc-400">
+                Header image *{" "}
+                <span className="text-zinc-600">
+                  (hi-res image shown at top of the detail page)
+                </span>
+              </span>
+              <div className="flex items-start gap-6">
+                {headerId && (
+                  <div className="flex flex-col gap-1">
+                    <div className="relative group">
+                      <Image
+                        src={cloudinaryThumbUrl(headerId)}
+                        alt="Header preview"
+                        width={200}
+                        height={130}
+                        className="rounded-md object-cover"
+                        unoptimized
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setHeaderId("");
+                          setHeaderFormat("");
+                          setAnimateHeader(false);
+                        }}
+                        className="absolute -top-2 -right-2 hidden group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs hover:bg-red-500"
+                        title="Remove header image">
+                        ×
+                      </button>
+                    </div>
+                    {headerIsGif && (
+                      <span className="text-xs text-zinc-500">GIF</span>
+                    )}
+                  </div>
+                )}
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm text-zinc-400">
+                    {headerId ? "Replace header image" : "Upload header image"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeaderUpload}
+                    disabled={headerUploading}
+                    className="text-sm text-zinc-400 file:mr-3 file:rounded-md file:border-0 file:bg-zinc-700 file:px-3 file:py-1.5 file:text-sm file:text-zinc-200 hover:file:bg-zinc-600 disabled:opacity-50"
+                  />
+                  {headerUploading && (
+                    <span className="text-sm text-zinc-500">Uploading…</span>
+                  )}
+                </label>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

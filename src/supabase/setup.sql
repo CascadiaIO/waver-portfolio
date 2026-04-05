@@ -38,6 +38,11 @@ CREATE TABLE IF NOT EXISTS entries (
   -- Embedded videos (YouTube / Vimeo / Google Drive share URLs)
   video_urls              TEXT[]        NOT NULL DEFAULT '{}',
 
+  -- Detail page header (optional — NULL means use the thumbnail)
+  header_id               TEXT,                           -- Cloudinary public_id
+  header_format           TEXT,                           -- e.g. 'gif', 'jpg'
+  animate_header          BOOLEAN       NOT NULL DEFAULT false,
+
   -- Category
   category                TEXT          NOT NULL DEFAULT 'other'
                             CHECK (category IN ('wave', 'game', 'music', 'other')),
@@ -154,6 +159,16 @@ FROM (
 ) sub
 WHERE entries.id = sub.id
   AND entries.sort_order = 0;
+
+-- Detail page header columns
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS header_id TEXT;
+
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS header_format TEXT;
+
+ALTER TABLE entries
+  ADD COLUMN IF NOT EXISTS animate_header BOOLEAN NOT NULL DEFAULT false;
 
 
 -- ---------------------------------------------------------------------------
